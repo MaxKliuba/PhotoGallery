@@ -1,5 +1,6 @@
 package com.maxclub.android.photogallery
 
+import android.content.res.Resources
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -10,8 +11,10 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import kotlin.math.max
 
 private const val LOG_TAG = "PhotoGalleryFragment"
+private const val MIN_RECYCLER_VIEW_ITEM_WIDTH_DP = 200
 
 class PhotoGalleryFragment : Fragment() {
     private val photoGalleryViewModel: PhotoGalleryViewModel by lazy {
@@ -27,7 +30,15 @@ class PhotoGalleryFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_photo_gallery, container, false)
 
         photoRecyclerView = view.findViewById(R.id.photo_recycler_view)
-        photoRecyclerView.layoutManager = GridLayoutManager(context, 3)
+        photoRecyclerView.apply {
+            layoutManager = GridLayoutManager(context, 1)
+            viewTreeObserver.addOnGlobalLayoutListener {
+                val minWidthPx =
+                    (MIN_RECYCLER_VIEW_ITEM_WIDTH_DP * Resources.getSystem().displayMetrics.density)
+                        .toInt()
+                (layoutManager as? GridLayoutManager)?.spanCount = max(width / minWidthPx, 1)
+            }
+        }
 
         return view
     }
