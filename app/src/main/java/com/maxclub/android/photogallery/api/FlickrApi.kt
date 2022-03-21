@@ -1,5 +1,6 @@
 package com.maxclub.android.photogallery.api
 
+import com.maxclub.android.photogallery.PhotoResponse
 import retrofit2.Call
 import retrofit2.http.GET
 
@@ -13,5 +14,5 @@ interface FlickrApi {
                 "&nojsoncallback=1" +
                 "&extras=url_s"
     )
-    fun fetchPhotos(): Call<FlickrResponse>
+    fun fetchPhotos(): Call<PhotoResponse>
 }
