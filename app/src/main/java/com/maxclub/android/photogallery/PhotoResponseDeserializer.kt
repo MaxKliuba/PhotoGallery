@@ -3,7 +3,7 @@ package com.maxclub.android.photogallery
 import com.google.gson.*
 import java.lang.reflect.Type
 
-class PhotoDeserializer : JsonDeserializer<PhotoResponse> {
+class PhotoResponseDeserializer : JsonDeserializer<PhotoResponse> {
     override fun deserialize(
         json: JsonElement,
         typeOfT: Type?,

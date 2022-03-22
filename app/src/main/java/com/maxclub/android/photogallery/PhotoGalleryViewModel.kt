@@ -2,13 +2,16 @@ package com.maxclub.android.photogallery
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.paging.*
+import com.maxclub.android.photogallery.api.FlickrApi
 
 class PhotoGalleryViewModel : ViewModel() {
-    private val flickrFetcher = FlickrFetcher()
-    val galleryItemLiveData: LiveData<List<GalleryItem>> = flickrFetcher.fetchPhotos()
+    private val flickrApi = FlickrApi.create()
 
-    override fun onCleared() {
-        super.onCleared()
-        flickrFetcher.cancelFlickrRequest()
-    }
+    val galleryItemLiveData: LiveData<PagingData<GalleryItem>> =
+        Pager(PagingConfig(pageSize = 100, maxSize = 1000)) {
+            PhotoPagingSource(flickrApi)
+        }.liveData
+            .cachedIn(viewModelScope)
 }
