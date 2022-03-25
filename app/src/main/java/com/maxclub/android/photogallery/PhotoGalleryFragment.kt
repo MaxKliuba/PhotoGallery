@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.squareup.picasso.Picasso
 import kotlin.math.max
@@ -30,6 +31,7 @@ class PhotoGalleryFragment : Fragment() {
         ViewModelProvider(this)[PhotoGalleryViewModel::class.java]
     }
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
+    private lateinit var floatingScrollButton: FloatingActionButton
     private lateinit var pagingPhotoAdapter: PagingPhotoAdapter
     private lateinit var photoRecyclerView: RecyclerView
 
@@ -52,6 +54,13 @@ class PhotoGalleryFragment : Fragment() {
         view.findViewById<Button>(R.id.retry_button).apply {
             setOnClickListener {
                 pagingPhotoAdapter.retry()
+            }
+        }
+
+        floatingScrollButton = view.findViewById(R.id.floating_scroll_button)
+        floatingScrollButton.apply {
+            setOnClickListener {
+                photoRecyclerView.smoothScrollToPosition(0)
             }
         }
 
@@ -80,6 +89,19 @@ class PhotoGalleryFragment : Fragment() {
             viewTreeObserver.addOnGlobalLayoutListener {
                 gridLayoutManager.spanCount = getSpanCount(this)
             }
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                    super.onScrollStateChanged(recyclerView, newState)
+                    if (!recyclerView.canScrollVertically(-1)) {
+                        floatingScrollButton.visibility = View.GONE
+                    }
+                }
+
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    super.onScrolled(recyclerView, dx, dy)
+                    floatingScrollButton.visibility = if (dy >= 0) View.GONE else View.VISIBLE
+                }
+            })
         }
 
         return view
