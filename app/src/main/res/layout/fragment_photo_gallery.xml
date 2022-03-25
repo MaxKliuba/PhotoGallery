@@ -13,7 +13,9 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/photo_recycler_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:fadeScrollbars="true"
+            android:scrollbars="vertical" />
 
         <LinearLayout
             android:id="@+id/load_state_container"
@@ -30,9 +32,10 @@
 
             <TextView
                 android:id="@+id/error_text_view"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
+                android:gravity="center"
                 android:text="@string/error_message"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                 android:textSize="16sp" />

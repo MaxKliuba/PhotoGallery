@@ -2,11 +2,11 @@ package com.maxclub.android.photogallery
 
 import android.content.res.Resources
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.progressindicator.LinearProgressIndicator
+import com.squareup.picasso.Picasso
 import kotlin.math.max
 
 private const val LOG_TAG = "PhotoGalleryFragment"
@@ -65,19 +66,17 @@ class PhotoGalleryFragment : Fragment() {
             }
         }
         photoRecyclerView.apply {
-            val gridLayoutManager = GridLayoutManager(context, 1).apply {
+            val footerAdapter = LoadStatePhotoAdapter(pagingPhotoAdapter::retry)
+            val gridLayoutManager = GridLayoutManager(context, 3).apply {
                 spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
                     override fun getSpanSize(position: Int): Int {
-                        return if (pagingPhotoAdapter.getItemViewType(position) == 0) 1
+                        return if (pagingPhotoAdapter.getItemViewType(position) == PagingPhotoAdapter.GALLERY_ITEM) 1
                         else getSpanCount(photoRecyclerView)
                     }
                 }
             }
             layoutManager = gridLayoutManager
-            adapter = pagingPhotoAdapter.withLoadStateHeaderAndFooter(
-                header = LoadStatePhotoAdapter(pagingPhotoAdapter::retry),
-                footer = LoadStatePhotoAdapter(pagingPhotoAdapter::retry),
-            )
+            adapter = pagingPhotoAdapter.withLoadStateFooter(footerAdapter)
             viewTreeObserver.addOnGlobalLayoutListener {
                 gridLayoutManager.spanCount = getSpanCount(this)
             }
@@ -104,30 +103,37 @@ class PhotoGalleryFragment : Fragment() {
 
         fun bind(galleryItem: GalleryItem) {
             this.galleryItem = galleryItem
-            (itemView as TextView).text = galleryItem.title
-        }
-
-        fun bindPlaceholder() {
-            (itemView as TextView).text = ""
+            Picasso.get()
+                .load(galleryItem.url)
+                .fit()
+                .centerCrop()
+                .placeholder(R.drawable.ic_placeholder)
+                .into(itemView as ImageView)
         }
     }
 
     private class PagingPhotoAdapter(diffUtil: DiffUtil.ItemCallback<GalleryItem>) :
         PagingDataAdapter<GalleryItem, PhotoHolder>(diffUtil) {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhotoHolder {
-            val textView = TextView(parent.context)
-            return PhotoHolder(textView)
+            val layoutInflater = LayoutInflater.from(parent.context)
+            val view = layoutInflater.inflate(R.layout.list_item_gallery, parent, false)
+            return PhotoHolder(view)
         }
 
         override fun onBindViewHolder(holder: PhotoHolder, position: Int) {
             val galleryItem = getItem(position)
             galleryItem?.let {
                 holder.bind(it)
-            } ?: holder.bindPlaceholder()
+            }
         }
 
         override fun getItemViewType(position: Int): Int =
-            if (position == itemCount) 1 else 0
+            if (position >= itemCount) LOAD_STATE_ITEM else GALLERY_ITEM
+
+        companion object {
+            const val GALLERY_ITEM = 0
+            const val LOAD_STATE_ITEM = 1
+        }
     }
 
     private class DiffUtilCallback : DiffUtil.ItemCallback<GalleryItem>() {
