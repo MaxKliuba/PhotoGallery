@@ -127,11 +127,17 @@ class PhotoGalleryFragment : Fragment() {
         val searchItem: MenuItem = menu.findItem(R.id.menu_item_search)
         val searchView = searchItem.actionView as SearchView
         searchView.apply {
+            if (photoGalleryViewModel.searchTerm.isNotBlank()) {
+                setQuery(photoGalleryViewModel.searchTerm, false)
+                isIconified = false
+                clearFocus()
+            }
             setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String): Boolean {
                     Log.d(LOG_TAG, "QueryTextSubmit: $query")
                     photoGalleryViewModel.fetchPhotos(query)
-                    return true
+                    clearFocus()
+                    return false
                 }
 
                 override fun onQueryTextChange(newText: String): Boolean {
@@ -140,20 +146,12 @@ class PhotoGalleryFragment : Fragment() {
                 }
             })
 
-            setOnSearchClickListener {
-                searchView.setQuery(photoGalleryViewModel.searchTerm, false)
+            setOnCloseListener {
+                photoGalleryViewModel.fetchPhotos("")
+                false
             }
         }
     }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean =
-        when (item.itemId) {
-            R.id.menu_item_clear -> {
-                photoGalleryViewModel.fetchPhotos("")
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
 
     private fun getSpanCount(view: View): Int {
         val minWidthPx =

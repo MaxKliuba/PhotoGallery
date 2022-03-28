@@ -3,5 +3,4 @@
     <string name="retry_button">Retry</string>
     <string name="error_message">Something went wrong</string>
     <string name="search">Search</string>
-    <string name="clear_search">Clear Search</string>
 </resources>
