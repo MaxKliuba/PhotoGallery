@@ -2,12 +2,12 @@ package com.maxclub.android.photogallery
 
 import android.content.res.Resources
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.util.Log
+import android.view.*
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -34,6 +34,12 @@ class PhotoGalleryFragment : Fragment() {
     private lateinit var floatingScrollButton: FloatingActionButton
     private lateinit var pagingPhotoAdapter: PagingPhotoAdapter
     private lateinit var photoRecyclerView: RecyclerView
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        setHasOptionsMenu(true)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -75,7 +81,6 @@ class PhotoGalleryFragment : Fragment() {
             }
         }
         photoRecyclerView.apply {
-            val footerAdapter = LoadStatePhotoAdapter(pagingPhotoAdapter::retry)
             val gridLayoutManager = GridLayoutManager(context, 3).apply {
                 spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
                     override fun getSpanSize(position: Int): Int {
@@ -85,7 +90,8 @@ class PhotoGalleryFragment : Fragment() {
                 }
             }
             layoutManager = gridLayoutManager
-            adapter = pagingPhotoAdapter.withLoadStateFooter(footerAdapter)
+            adapter =
+                pagingPhotoAdapter.withLoadStateFooter(LoadStatePhotoAdapter(pagingPhotoAdapter::retry))
             viewTreeObserver.addOnGlobalLayoutListener {
                 gridLayoutManager.spanCount = getSpanCount(this)
             }
@@ -113,6 +119,41 @@ class PhotoGalleryFragment : Fragment() {
             pagingPhotoAdapter.submitData(viewLifecycleOwner.lifecycle, it)
         }
     }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.fragment_photo_gallery, menu)
+
+        val searchItem: MenuItem = menu.findItem(R.id.menu_item_search)
+        val searchView = searchItem.actionView as SearchView
+        searchView.apply {
+            setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String): Boolean {
+                    Log.d(LOG_TAG, "QueryTextSubmit: $query")
+                    photoGalleryViewModel.fetchPhotos(query)
+                    return true
+                }
+
+                override fun onQueryTextChange(newText: String): Boolean {
+                    Log.d(LOG_TAG, "QueryTextChange: $newText")
+                    return false
+                }
+            })
+
+            setOnSearchClickListener {
+                searchView.setQuery(photoGalleryViewModel.searchTerm, false)
+            }
+        }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+        when (item.itemId) {
+            R.id.menu_item_clear -> {
+                photoGalleryViewModel.fetchPhotos("")
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
 
     private fun getSpanCount(view: View): Int {
         val minWidthPx =

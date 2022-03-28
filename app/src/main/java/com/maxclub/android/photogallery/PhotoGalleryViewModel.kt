@@ -1,17 +1,31 @@
 package com.maxclub.android.photogallery
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import android.app.Application
+import androidx.lifecycle.*
 import androidx.paging.*
 import com.maxclub.android.photogallery.api.FlickrApi
 
-class PhotoGalleryViewModel : ViewModel() {
+class PhotoGalleryViewModel(private val app: Application) : AndroidViewModel(app) {
     private val flickrApi = FlickrApi.create()
+    private val mutableSearchTerm = MutableLiveData(QueryPreferences.getStoredQuery(app))
+
+    val searchTerm: String
+        get() = mutableSearchTerm.value ?: ""
 
     val galleryItemLiveData: LiveData<PagingData<GalleryItem>> =
-        Pager(PagingConfig(pageSize = 100, maxSize = 1000)) {
-            PhotoPagingSource(flickrApi)
-        }.liveData
-            .cachedIn(viewModelScope)
+        Transformations.switchMap(mutableSearchTerm) { searchTerm ->
+            Pager(
+                PagingConfig(
+                    pageSize = FlickrApi.DEFAULT_PAGE_SIZE,
+                    maxSize = 1000
+                )
+            ) {
+                PhotoPagingSource(flickrApi, searchTerm)
+            }.liveData
+        }.cachedIn(viewModelScope)
+
+    fun fetchPhotos(query: String = "") {
+        QueryPreferences.setStoredQuery(app, query)
+        mutableSearchTerm.value = query
+    }
 }
