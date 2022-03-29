@@ -2,8 +2,11 @@ package com.maxclub.android.photogallery
 
 import android.content.res.Resources
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.*
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
@@ -96,16 +99,33 @@ class PhotoGalleryFragment : Fragment() {
                 gridLayoutManager.spanCount = getSpanCount(this)
             }
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                private val handler: Handler = Handler(Looper.getMainLooper())
+                private val runnable: Runnable = Runnable {
+                    translate(-1.5f * floatingScrollButton.height)
+                }
+                private var dy: Int = 0
+
+                private fun translate(position: Float) {
+                    floatingScrollButton.animate()
+                        .translationY(position)
+                        .setInterpolator(AccelerateDecelerateInterpolator())
+                        .duration = 300
+                }
+
                 override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                     super.onScrollStateChanged(recyclerView, newState)
-                    if (!recyclerView.canScrollVertically(-1)) {
-                        floatingScrollButton.visibility = View.GONE
+                    if (dy >= 0 || !recyclerView.canScrollVertically(-1)) {
+                        translate(-1.5f * floatingScrollButton.height)
+                    } else {
+                        translate(0.0f)
+                        handler.removeCallbacks(runnable)
+                        handler.postDelayed(runnable, 3000)
                     }
                 }
 
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     super.onScrolled(recyclerView, dx, dy)
-                    floatingScrollButton.visibility = if (dy >= 0) View.GONE else View.VISIBLE
+                    this.dy = dy
                 }
             })
         }
@@ -161,6 +181,36 @@ class PhotoGalleryFragment : Fragment() {
 
     private class PhotoHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private lateinit var galleryItem: GalleryItem
+        private val photoImageView: ImageView = itemView.findViewById(R.id.photo_image_view)
+        private val overlayView: View = itemView.findViewById(R.id.overlay_view)
+        private val openButton: View = itemView.findViewById(R.id.open_button)
+        private val titleTextView: TextView = itemView.findViewById(R.id.title_text_view)
+
+        init {
+            val handler = Handler(Looper.getMainLooper())
+            val runnable = Runnable {
+                overlayView.animate()
+                    .alpha(0.0f)
+                    .setInterpolator(AccelerateDecelerateInterpolator())
+                    .duration = 300
+            }
+
+            itemView.setOnClickListener {
+                if (overlayView.alpha == 1.0f) {
+                    handler.removeCallbacks(runnable)
+                } else {
+                    overlayView.animate()
+                        .alpha(1.0f)
+                        .setInterpolator(AccelerateDecelerateInterpolator())
+                        .duration = 300
+                }
+                handler.postDelayed(runnable, 3000)
+            }
+
+            openButton.setOnClickListener {
+                //
+            }
+        }
 
         fun bind(galleryItem: GalleryItem) {
             this.galleryItem = galleryItem
@@ -169,7 +219,10 @@ class PhotoGalleryFragment : Fragment() {
                 .fit()
                 .centerCrop()
                 .placeholder(R.drawable.ic_placeholder)
-                .into(itemView as ImageView)
+                .into(photoImageView)
+
+            titleTextView.text = galleryItem.title
+            photoImageView.contentDescription = galleryItem.title
         }
     }
 
@@ -207,7 +260,7 @@ class PhotoGalleryFragment : Fragment() {
 
     private class LoadStatePhotoHolder(
         itemView: View,
-        retry: () -> Unit
+        retry: () -> Unit,
     ) : RecyclerView.ViewHolder(itemView) {
         private val linearProgressIndicator: LinearProgressIndicator =
             itemView.findViewById(R.id.linear_progress_indicator)

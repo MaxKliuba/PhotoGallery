@@ -4,6 +4,7 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/AndroidProjects/ProjectsFromBookKotlin/PhotoGallery/app/src/main/res/drawable/cursor.xml" value="0.1575" />
+        <entry key="..\:/AndroidProjects/ProjectsFromBookKotlin/PhotoGallery/app/src/main/res/drawable/ic_baseline_open_in_new_24.xml" value="0.1575" />
         <entry key="..\:/AndroidProjects/ProjectsFromBookKotlin/PhotoGallery/app/src/main/res/drawable/ic_photo_24.xml" value="0.1575" />
         <entry key="..\:/AndroidProjects/ProjectsFromBookKotlin/PhotoGallery/app/src/main/res/drawable/ic_photo_placeholder.xml" value="0.1575" />
         <entry key="..\:/AndroidProjects/ProjectsFromBookKotlin/PhotoGallery/app/src/main/res/layout/activity_photo_gallery.xml" value="0.25416666666666665" />

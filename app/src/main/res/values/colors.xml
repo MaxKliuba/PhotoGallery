@@ -13,4 +13,5 @@
     <color name="color_background_swipe_refresh_layout">@color/white</color>
     <color name="color_placeholder">@color/purple_500</color>
     <color name="color_background_scroll_button">@color/white</color>
+    <color name="color_gallery_item_overlay">#99000000</color>
 </resources>

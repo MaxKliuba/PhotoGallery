@@ -3,4 +3,6 @@
     <string name="retry_button">Retry</string>
     <string name="error_message">Something went wrong</string>
     <string name="search">Search</string>
+    <string name="open_button_content_description">Open</string>
+    <string name="scroll_button_content_description">Return To Top</string>
 </resources>
