@@ -51,9 +51,11 @@ class PhotoPagingSource(
                     nextKey = null,
                 )
             } else {
+                Log.e(LOG_TAG, HttpException(response).stackTraceToString())
                 LoadResult.Error(HttpException(response))
             }
         } catch (e: Exception) {
+            Log.e(LOG_TAG, e.stackTraceToString())
             LoadResult.Error(e)
         }
 }

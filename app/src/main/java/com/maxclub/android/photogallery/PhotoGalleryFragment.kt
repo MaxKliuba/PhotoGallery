@@ -21,13 +21,16 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import androidx.work.*
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.squareup.picasso.Picasso
+import java.util.concurrent.TimeUnit
 import kotlin.math.max
 
 private const val LOG_TAG = "PhotoGalleryFragment"
 private const val MIN_RECYCLER_VIEW_ITEM_WIDTH_DP = 180
+private const val POLL_WORK = "POLL_WORK"
 
 class PhotoGalleryFragment : Fragment() {
     private val photoGalleryViewModel: PhotoGalleryViewModel by lazy {
@@ -171,7 +174,42 @@ class PhotoGalleryFragment : Fragment() {
                 false
             }
         }
+
+        val toggleItem = menu.findItem(R.id.menu_item_toggle_polling)
+        val isPolling = QueryPreferences.isPolling(requireContext())
+        val toggleItemTitle = if (isPolling) R.string.stop_polling else R.string.start_polling
+        toggleItem.setTitle(toggleItemTitle)
     }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+        when (item.itemId) {
+            R.id.menu_item_toggle_polling -> {
+                val isPolling = QueryPreferences.isPolling(requireContext())
+                if (isPolling) {
+                    WorkManager.getInstance(requireContext())
+                        .cancelUniqueWork(POLL_WORK)
+                    QueryPreferences.setPolling(requireContext(), false)
+                } else {
+                    val constraints = Constraints.Builder()
+                        .setRequiredNetworkType(NetworkType.UNMETERED)
+                        .build()
+                    val periodicRequest =
+                        PeriodicWorkRequest.Builder(PollWorker::class.java, 15, TimeUnit.MINUTES)
+                            .setConstraints(constraints)
+                            .build()
+                    WorkManager.getInstance(requireContext())
+                        .enqueueUniquePeriodicWork(
+                            POLL_WORK,
+                            ExistingPeriodicWorkPolicy.KEEP,
+                            periodicRequest
+                        )
+                    QueryPreferences.setPolling(requireContext(), true)
+                }
+                activity?.invalidateOptionsMenu()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
 
     private fun getSpanCount(view: View): Int {
         val minWidthPx =

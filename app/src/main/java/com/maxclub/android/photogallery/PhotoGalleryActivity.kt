@@ -1,5 +1,7 @@
 package com.maxclub.android.photogallery
 
+import android.content.Context
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 
@@ -13,5 +15,9 @@ class PhotoGalleryActivity : AppCompatActivity() {
                 .add(R.id.fragment_container, PhotoGalleryFragment.newInstance())
                 .commit()
         }
+    }
+
+    companion object {
+        fun newIntent(context: Context): Intent = Intent(context, PhotoGalleryActivity::class.java)
     }
 }
