@@ -24,6 +24,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.work.*
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.progressindicator.LinearProgressIndicator
+import com.google.android.material.switchmaterial.SwitchMaterial
 import com.squareup.picasso.Picasso
 import java.util.concurrent.TimeUnit
 import kotlin.math.max
@@ -155,6 +156,7 @@ class PhotoGalleryFragment : Fragment() {
                 isIconified = false
                 clearFocus()
             }
+
             setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String): Boolean {
                     Log.d(LOG_TAG, "QueryTextSubmit: $query")
@@ -176,20 +178,12 @@ class PhotoGalleryFragment : Fragment() {
         }
 
         val toggleItem = menu.findItem(R.id.menu_item_toggle_polling)
-        val isPolling = QueryPreferences.isPolling(requireContext())
-        val toggleItemTitle = if (isPolling) R.string.stop_polling else R.string.start_polling
-        toggleItem.setTitle(toggleItemTitle)
-    }
+        val toggleView = toggleItem.actionView as SwitchMaterial
+        toggleView.apply {
+            isChecked = QueryPreferences.isPolling(requireContext())
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean =
-        when (item.itemId) {
-            R.id.menu_item_toggle_polling -> {
-                val isPolling = QueryPreferences.isPolling(requireContext())
-                if (isPolling) {
-                    WorkManager.getInstance(requireContext())
-                        .cancelUniqueWork(POLL_WORK)
-                    QueryPreferences.setPolling(requireContext(), false)
-                } else {
+            setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked) {
                     val constraints = Constraints.Builder()
                         .setRequiredNetworkType(NetworkType.UNMETERED)
                         .build()
@@ -203,13 +197,15 @@ class PhotoGalleryFragment : Fragment() {
                             ExistingPeriodicWorkPolicy.KEEP,
                             periodicRequest
                         )
-                    QueryPreferences.setPolling(requireContext(), true)
+
+                } else {
+                    WorkManager.getInstance(requireContext())
+                        .cancelUniqueWork(POLL_WORK)
                 }
-                activity?.invalidateOptionsMenu()
-                true
+                QueryPreferences.setPolling(requireContext(), isChecked)
             }
-            else -> super.onOptionsItemSelected(item)
         }
+    }
 
     private fun getSpanCount(view: View): Int {
         val minWidthPx =

@@ -17,6 +17,7 @@ private const val LOG_TAG = "PollWorker"
 class PollWorker(private val context: Context, workerParams: WorkerParameters) :
     Worker(context, workerParams) {
     override fun doWork(): Result {
+        Log.i(LOG_TAG, "PollWorker.doWork()")
         val query = QueryPreferences.getStoredQuery(context)
         val lastResultId = QueryPreferences.getLastResultId(context)
 
