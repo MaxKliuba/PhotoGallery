@@ -12,7 +12,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.paging.LoadState
 import androidx.paging.LoadStateAdapter
@@ -22,6 +21,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.work.*
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.switchmaterial.SwitchMaterial
@@ -33,7 +33,7 @@ private const val LOG_TAG = "PhotoGalleryFragment"
 private const val MIN_RECYCLER_VIEW_ITEM_WIDTH_DP = 180
 private const val POLL_WORK = "POLL_WORK"
 
-class PhotoGalleryFragment : Fragment() {
+class PhotoGalleryFragment : VisibleFragment() {
     private val photoGalleryViewModel: PhotoGalleryViewModel by lazy {
         ViewModelProvider(this)[PhotoGalleryViewModel::class.java]
     }
@@ -160,7 +160,7 @@ class PhotoGalleryFragment : Fragment() {
             setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String): Boolean {
                     Log.d(LOG_TAG, "QueryTextSubmit: $query")
-                    photoGalleryViewModel.fetchPhotos(query)
+                    photoGalleryViewModel.fetchPhotos(query.trim())
                     clearFocus()
                     return false
                 }
@@ -217,7 +217,7 @@ class PhotoGalleryFragment : Fragment() {
         private lateinit var galleryItem: GalleryItem
         private val photoImageView: ImageView = itemView.findViewById(R.id.photo_image_view)
         private val overlayView: View = itemView.findViewById(R.id.overlay_view)
-        private val openButton: View = itemView.findViewById(R.id.open_button)
+        private val openButton: MaterialButton = itemView.findViewById(R.id.open_button)
         private val titleTextView: TextView = itemView.findViewById(R.id.title_text_view)
 
         init {
