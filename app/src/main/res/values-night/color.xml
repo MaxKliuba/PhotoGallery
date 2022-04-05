@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="color_browser_toolbar">@color/black</color>
+    <color name="color_browser_toolbar">#141414</color>
     <color name="color_scheme_swipe_refresh_layout">@color/purple_200</color>
     <color name="color_background_swipe_refresh_layout">@color/dark_gray</color>
     <color name="color_placeholder">@color/purple_200</color>
