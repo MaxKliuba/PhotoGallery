@@ -9,6 +9,7 @@
     <color name="white">#FFFFFFFF</color>
     <color name="dark_gray">#222222</color>
 
+    <color name="color_browser_toolbar">@color/purple_500</color>
     <color name="color_scheme_swipe_refresh_layout">@color/purple_500</color>
     <color name="color_background_swipe_refresh_layout">@color/white</color>
     <color name="color_placeholder">@color/purple_500</color>

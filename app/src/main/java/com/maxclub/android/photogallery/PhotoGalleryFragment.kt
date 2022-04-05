@@ -1,6 +1,5 @@
 package com.maxclub.android.photogallery
 
-import android.content.Intent
 import android.content.res.Resources
 import android.os.Bundle
 import android.os.Handler
@@ -12,6 +11,9 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.widget.SearchView
+import androidx.browser.customtabs.CustomTabColorSchemeParams
+import androidx.browser.customtabs.CustomTabsIntent
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.paging.LoadState
@@ -244,8 +246,23 @@ class PhotoGalleryFragment : VisibleFragment() {
             }
 
             openButton.setOnClickListener {
-                val intent = Intent(Intent.ACTION_VIEW, galleryItem.photoPageUri)
-                startActivity(intent)
+//                val intent = PhotoPageActivity.newIntent(requireContext(), galleryItem.photoPageUri)
+//                startActivity(intent)
+
+                CustomTabsIntent.Builder()
+                    .setDefaultColorSchemeParams(
+                        CustomTabColorSchemeParams.Builder()
+                            .setToolbarColor(
+                                ContextCompat.getColor(
+                                    requireContext(),
+                                    R.color.color_browser_toolbar
+                                )
+                            )
+                            .build()
+                    )
+                    .setShowTitle(true)
+                    .build()
+                    .launchUrl(requireContext(), galleryItem.photoPageUri)
             }
         }
 

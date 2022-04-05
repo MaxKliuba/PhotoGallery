@@ -7,8 +7,10 @@
         <entry key="..\:/AndroidProjects/ProjectsFromBookKotlin/PhotoGallery/app/src/main/res/drawable/ic_baseline_open_in_new_24.xml" value="0.1575" />
         <entry key="..\:/AndroidProjects/ProjectsFromBookKotlin/PhotoGallery/app/src/main/res/drawable/ic_photo_24.xml" value="0.1575" />
         <entry key="..\:/AndroidProjects/ProjectsFromBookKotlin/PhotoGallery/app/src/main/res/drawable/ic_photo_placeholder.xml" value="0.1575" />
+        <entry key="..\:/AndroidProjects/ProjectsFromBookKotlin/PhotoGallery/app/src/main/res/layout/activity_fragment.xml" value="0.25416666666666665" />
         <entry key="..\:/AndroidProjects/ProjectsFromBookKotlin/PhotoGallery/app/src/main/res/layout/activity_photo_gallery.xml" value="0.25416666666666665" />
         <entry key="..\:/AndroidProjects/ProjectsFromBookKotlin/PhotoGallery/app/src/main/res/layout/fragment_photo_gallery.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidProjects/ProjectsFromBookKotlin/PhotoGallery/app/src/main/res/layout/fragment_photo_page.xml" value="0.25416666666666665" />
         <entry key="..\:/AndroidProjects/ProjectsFromBookKotlin/PhotoGallery/app/src/main/res/layout/list_footer_photo_gallery.xml" value="0.25416666666666665" />
         <entry key="..\:/AndroidProjects/ProjectsFromBookKotlin/PhotoGallery/app/src/main/res/layout/list_item_gallery.xml" value="0.72" />
         <entry key="..\:/AndroidProjects/ProjectsFromBookKotlin/PhotoGallery/app/src/main/res/layout/load_state_item.xml" value="0.25416666666666665" />
