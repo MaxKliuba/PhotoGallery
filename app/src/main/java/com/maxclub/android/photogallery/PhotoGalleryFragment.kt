@@ -1,5 +1,6 @@
 package com.maxclub.android.photogallery
 
+import android.content.Intent
 import android.content.res.Resources
 import android.os.Bundle
 import android.os.Handler
@@ -21,7 +22,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.work.*
-import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.switchmaterial.SwitchMaterial
@@ -31,6 +31,8 @@ import kotlin.math.max
 
 private const val LOG_TAG = "PhotoGalleryFragment"
 private const val MIN_RECYCLER_VIEW_ITEM_WIDTH_DP = 180
+private const val GALLERY_ITEM = 0
+private const val LOAD_STATE_ITEM = 1
 private const val POLL_WORK = "POLL_WORK"
 
 class PhotoGalleryFragment : VisibleFragment() {
@@ -91,7 +93,7 @@ class PhotoGalleryFragment : VisibleFragment() {
             val gridLayoutManager = GridLayoutManager(context, 3).apply {
                 spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
                     override fun getSpanSize(position: Int): Int {
-                        return if (pagingPhotoAdapter.getItemViewType(position) == PagingPhotoAdapter.GALLERY_ITEM) 1
+                        return if (pagingPhotoAdapter.getItemViewType(position) == GALLERY_ITEM) 1
                         else getSpanCount(photoRecyclerView)
                     }
                 }
@@ -213,11 +215,11 @@ class PhotoGalleryFragment : VisibleFragment() {
         return max(view.width / minWidthPx, 1)
     }
 
-    private class PhotoHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    private inner class PhotoHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private lateinit var galleryItem: GalleryItem
         private val photoImageView: ImageView = itemView.findViewById(R.id.photo_image_view)
         private val overlayView: View = itemView.findViewById(R.id.overlay_view)
-        private val openButton: MaterialButton = itemView.findViewById(R.id.open_button)
+        private val openButton: Button = itemView.findViewById(R.id.open_button)
         private val titleTextView: TextView = itemView.findViewById(R.id.title_text_view)
 
         init {
@@ -242,7 +244,8 @@ class PhotoGalleryFragment : VisibleFragment() {
             }
 
             openButton.setOnClickListener {
-                //
+                val intent = Intent(Intent.ACTION_VIEW, galleryItem.photoPageUri)
+                startActivity(intent)
             }
         }
 
@@ -260,7 +263,7 @@ class PhotoGalleryFragment : VisibleFragment() {
         }
     }
 
-    private class PagingPhotoAdapter(diffUtil: DiffUtil.ItemCallback<GalleryItem>) :
+    private inner class PagingPhotoAdapter(diffUtil: DiffUtil.ItemCallback<GalleryItem>) :
         PagingDataAdapter<GalleryItem, PhotoHolder>(diffUtil) {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhotoHolder {
             val layoutInflater = LayoutInflater.from(parent.context)
@@ -277,11 +280,6 @@ class PhotoGalleryFragment : VisibleFragment() {
 
         override fun getItemViewType(position: Int): Int =
             if (position >= itemCount) LOAD_STATE_ITEM else GALLERY_ITEM
-
-        companion object {
-            const val GALLERY_ITEM = 0
-            const val LOAD_STATE_ITEM = 1
-        }
     }
 
     private class DiffUtilCallback : DiffUtil.ItemCallback<GalleryItem>() {
